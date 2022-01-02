@@ -18,7 +18,7 @@
     },
     "homepage": "https://github.com/adithv08/elecpy_chat#readme",
     "dependencies": {
-        "ws": "^8.4.0"
+        "net": "^1.0.2"
     },
     "devDependencies": {
         "electron": "^16.0.5",
