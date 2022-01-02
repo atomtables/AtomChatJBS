@@ -1,0 +1,31 @@
+{
+    "name": "elecpy_chat",
+    "version": "1.0.0",
+    "description": "electron chat app",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "electron ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/adithv08/elecpy_chat.git"
+    },
+    "author": "adithv08",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/adithv08/elecpy_chat/issues"
+    },
+    "homepage": "https://github.com/adithv08/elecpy_chat#readme",
+    "dependencies": {
+        "ws": "^8.4.0"
+    },
+    "devDependencies": {
+        "electron": "^16.0.5",
+        "nodemon": "^2.0.15"
+    },
+    "optionalDependencies": {
+        "bufferutil": "^4.0.5",
+        "utf-8-validate": "^5.0.7"
+    }
+}
