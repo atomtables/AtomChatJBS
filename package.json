@@ -17,15 +17,8 @@
         "url": "https://github.com/adithv08/elecpy_chat/issues"
     },
     "homepage": "https://github.com/adithv08/elecpy_chat#readme",
-    "dependencies": {
-        "net": "^1.0.2"
-    },
     "devDependencies": {
         "electron": "^16.0.5",
         "nodemon": "^2.0.15"
-    },
-    "optionalDependencies": {
-        "bufferutil": "^4.0.5",
-        "utf-8-validate": "^5.0.7"
     }
 }
