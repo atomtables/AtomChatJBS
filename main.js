@@ -4,7 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + 'public/index.html');
+  res.sendFile(__dirname + './public/index.html');
 });
 
 server.listen(3000, () => {
