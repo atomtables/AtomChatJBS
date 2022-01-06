@@ -2,7 +2,7 @@
     "name": "elecpy_chat",
     "version": "1.0.0",
     "description": "electron chat app",
-    "main": "main.js",
+    "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "electron ."
