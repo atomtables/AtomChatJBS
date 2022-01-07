@@ -25,14 +25,40 @@
     <script>
       var socket = io();
 
+      function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for(let i = 0; i <ca.length; i++) {
+          let c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      if (getCookie("user_id") == "") {
+        var x = prompt("Hello! We see you are a new user. What would you like your username to be? \n\nPlease do not use duplicate usernames, sessions are logged.")
+
+        document.cookie = "user_id=" + x;
+        const user_id = getCookie("user_id");
+      } 
+
+      const d = new Date();
+      d.setTime(d.getTime())
       var messages = document.getElementById('messages');
       var form = document.getElementById('form');
       var input = document.getElementById('input');
-
+      var user_id = getCookie("user_id");
+      console.log(input.value)
       form.addEventListener('submit', function(e) {
+        console.log(input.value)
         e.preventDefault();
         if (input.value) {
-          socket.emit('chat message', input.value);
+          socket.emit('chat message', d + ": " + user_id + " says: " + input.value);
           input.value = '';
         }
       });
