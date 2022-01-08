@@ -47,8 +47,6 @@
         const user_id = getCookie("user_id");
       } 
 
-      const d = new Date();
-      d.setTime(d.getTime())
       var messages = document.getElementById('messages');
       var form = document.getElementById('form');
       var input = document.getElementById('input');
@@ -58,7 +56,9 @@
         console.log(input.value)
         e.preventDefault();
         if (input.value) {
-          socket.emit('chat message', d + ": " + user_id + " says: " + input.value);
+          const d = new Date();
+          d.setTime(d.getTime())
+          socket.emit('chat message', d.toLocaleString("en-US") + ": " + user_id + " says: " + input.value);
           input.value = '';
         }
       });
