@@ -65,7 +65,7 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <a class="navbar-brand" href="#">Elec Chat</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -75,28 +75,22 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
+                <!--<li class="nav-item">
                     <a class="nav-link" href="#">Link</a>
-                </li>
+                </li>-->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Dropdown
           </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Something else here</a>
+                        <a class="dropdown-item" id="navdropdown1" href="#">Action</a>
+                        <a class="dropdown-item disabled" href="#">Log Out</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Disabled</a>
+                    <!-- <a class="nav-link disabled" href="#">i will ban your ass if you are not supposed to be here.</a>-->
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
         </div>
     </nav>
     <ul id="messages">
@@ -137,6 +131,7 @@
         var form = document.getElementById('form');
         var input = document.getElementById('input');
         var user_id = getCookie("user_id");
+        document.getElementById("navbarDropdown").innerHTML = user_id
         console.log(input.value)
         form.addEventListener('submit', function(e) {
             console.log(input.value)
@@ -148,7 +143,46 @@
                 input.value = '';
             }
         });
+        document.getElementById("navbarDropdown").textContent = user_id
 
+        var timer = document.getElementById("navdropdown1")
+        var hr = 0;
+        var min = 0;
+        var sec = 0;
+
+        function timerCycle() {
+            var stoptime = false;
+            if (stoptime == false) {
+                sec = parseInt(sec);
+                min = parseInt(min);
+                hr = parseInt(hr);
+
+                sec = sec + 1
+
+                if (sec == 60) {
+                    min = min + 1;
+                    sec = 0;
+                }
+                if (min == 60) {
+                    hr = hr + 1;
+                    min = 0;
+                    sec = 0;
+                }
+
+                if (sec < 10 || sec == 0) {
+                    sec = '0' + sec;
+                }
+                if (min < 10 || min == 0) {
+                    min = '0' + min;
+                }
+                if (hr < 10 || hr == 0) {
+                    hr = '0' + hr;
+                }
+
+                timer.innerHTML = hr + ':' + min + ':' + sec;
+            }
+        }
+        setInterval("timerCycle()", 1000);
         socket.on('chat message', function(msg) {
             var item = document.createElement('li');
             item.textContent = msg;
