@@ -18,8 +18,7 @@
     },
     "homepage": "https://github.com/adithv08/elecpy_chat#readme",
     "devDependencies": {
-        "electron": "^16.0.5",
-        "nodemon": "^2.0.15"
+        "heroku": "^7.59.2"
     },
     "dependencies": {
         "express": "^4.17.2",
