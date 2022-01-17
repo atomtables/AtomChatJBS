@@ -150,7 +150,7 @@
             if (input.value) {
                 const d = new Date();
                 d.setTime(d.getTime())
-                socket.emit('chat message', d.toLocaleString("en-US") + ": " + user_id + " says: " + input.value);
+                socket.emit('chat message', [d.toLocaleString("en-US") + ": " + user_id + " says: " + input.value, user_id, input.value]);
                 input.value = '';
             }
         });
@@ -196,10 +196,27 @@
         setInterval("timerCycle()", 1000);
         socket.on('chat message', function(msg) {
             var item = document.createElement('li');
-            item.textContent = msg;
+            item.textContent = msg[0];
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
+            if (document.hidden) {
+                navigator.serviceWorker.register('/worker.js').then((worker) => {
+                    worker.showNotification(msg[1] + " says:", {
+                        body: msg[2]
+                    });
+                });
+            }
+
         });
+        if (window.Notification) {
+            Notification.requestPermission(() => {
+                if (Notification.permission === 'granted') {
+                    console.log("notifications working")
+                } else {
+                    console.log("notifications blocked. houston we got a problem")
+                }
+            });
+        }
     </script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
