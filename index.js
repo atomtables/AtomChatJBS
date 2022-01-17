@@ -8,9 +8,14 @@ app.get('/', (req, res) => {
 });
 
 
-app.get('/darkmode', (req, res) => {
+app.get('/d', (req, res) => {
     res.sendFile(__dirname + '/darkmode.html');
 });
+
+app.get('/worker.js', (req, res) => {
+    res.sendFile(__dirname + "/worker.js")
+})
+
 
 io.on('connection', (socket) => {
     socket.on('chat message', msg => {

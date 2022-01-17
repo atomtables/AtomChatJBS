@@ -17,11 +17,12 @@
         "url": "https://github.com/adithv08/elecpy_chat/issues"
     },
     "homepage": "https://github.com/adithv08/elecpy_chat#readme",
-    "devDependencies": {
-        "heroku": "^7.59.2"
-    },
     "dependencies": {
+        "body-parser": "^1.19.1",
+        "dark-mode-light-mode": "^1.3.3",
+        "dotenv": "^12.0.3",
         "express": "^4.17.2",
-        "socket.io": "^4.4.0"
+        "socket.io": "^4.4.0",
+        "web-push": "^3.4.5"
     }
 }

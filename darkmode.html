@@ -4,12 +4,14 @@
 <head>
     <title>Socket.IO chat</title>
     <style>
-        body {
+        body,
+        html {
             background-color: rgb(0, 0, 0);
             background-image: "darkmode.jpg";
             margin: 0;
             padding-bottom: 3rem;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            height: 100%;
         }
         
         #form {
@@ -50,8 +52,8 @@
             list-style-type: none;
             margin: 0;
             padding: 0;
-            background-color: rgb(0, 0, 0);
             color: white;
+            height: 100%;
         }
         
         #messages>li {
@@ -63,8 +65,9 @@
             color: white;
         }
         
-        .fixingrequired {
-            background-color: black;
+        #messages>li:nth-child(even) {
+            background: black;
+            color: white;
         }
     </style>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -81,7 +84,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Light Mode <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/">Light Mode <span class="sr-only">(current)</span></a>
                 </li>
                 <!--<li class="nav-item">
                     <a class="nav-link" href="#">Link</a>
@@ -101,108 +104,106 @@
             </ul>
         </div>
     </nav>
-    <div class="fixingrequired">
+    <ul id="messages" class="bg-dark" style="background-color: black;">
+        <li>Chats are logged.</li>
+        <li>Be aware what you say to others</li>
+    </ul>
+    <form id="form" class="bg-dark" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
 
-        <ul id="messages">
-            <li>Chats are logged.</li>
-            <li>Be aware what you say to others</li>
-        </ul>
-        <form id="form" action="">
-            <input id="input" autocomplete="off" /><button>Send</button>
-        </form>
-        <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
 
-        <script>
-            var socket = io();
-
-            function getCookie(cname) {
-                let name = cname + "=";
-                let decodedCookie = decodeURIComponent(document.cookie);
-                let ca = decodedCookie.split(';');
-                for (let i = 0; i < ca.length; i++) {
-                    let c = ca[i];
-                    while (c.charAt(0) == ' ') {
-                        c = c.substring(1);
-                    }
-                    if (c.indexOf(name) == 0) {
-                        return c.substring(name.length, c.length);
-                    }
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
                 }
-                return "";
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
             }
-            if (getCookie("user_id") == "") {
-                var x = prompt("Hello! We see you are a new user. What would you like your username to be? \n\nPlease do not use duplicate usernames, sessions are logged.")
+            return "";
+        }
+        if (getCookie("user_id") == "") {
+            var x = prompt("Hello! We see you are a new user. What would you like your username to be? \n\nPlease do not use duplicate usernames, sessions are logged.")
 
-                document.cookie = "user_id=" + x;
-                const user_id = getCookie("user_id");
-            }
+            document.cookie = "user_id=" + x;
+            const user_id = getCookie("user_id");
+        }
 
-            var messages = document.getElementById('messages');
-            var form = document.getElementById('form');
-            var input = document.getElementById('input');
-            var user_id = getCookie("user_id");
-            document.getElementById("navbarDropdown").innerHTML = user_id
+        var messages = document.getElementById('messages');
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+        var user_id = getCookie("user_id");
+        document.getElementById("navbarDropdown").innerHTML = user_id
+        console.log(input.value)
+        form.addEventListener('submit', function(e) {
             console.log(input.value)
-            form.addEventListener('submit', function(e) {
-                console.log(input.value)
-                e.preventDefault();
-                if (input.value) {
-                    const d = new Date();
-                    d.setTime(d.getTime())
-                    socket.emit('chat message', d.toLocaleString("en-US") + ": " + user_id + " says: " + input.value);
-                    input.value = '';
-                }
-            });
-            document.getElementById("navbarDropdown").textContent = user_id
-
-            var timer = document.getElementById("navdropdown1")
-            var hr = 0;
-            var min = 0;
-            var sec = 0;
-
-            function timerCycle() {
-                var stoptime = false;
-                if (stoptime == false) {
-                    sec = parseInt(sec);
-                    min = parseInt(min);
-                    hr = parseInt(hr);
-
-                    sec = sec + 1
-
-                    if (sec == 60) {
-                        min = min + 1;
-                        sec = 0;
-                    }
-                    if (min == 60) {
-                        hr = hr + 1;
-                        min = 0;
-                        sec = 0;
-                    }
-
-                    if (sec < 10 || sec == 0) {
-                        sec = '0' + sec;
-                    }
-                    if (min < 10 || min == 0) {
-                        min = '0' + min;
-                    }
-                    if (hr < 10 || hr == 0) {
-                        hr = '0' + hr;
-                    }
-
-                    timer.innerHTML = hr + ':' + min + ':' + sec;
-                }
+            e.preventDefault();
+            if (input.value) {
+                const d = new Date();
+                d.setTime(d.getTime())
+                socket.emit('chat message', d.toLocaleString("en-US") + ": " + user_id + " says: " + input.value);
+                input.value = '';
             }
-            setInterval("timerCycle()", 1000);
-            socket.on('chat message', function(msg) {
-                var item = document.createElement('li');
-                item.textContent = msg;
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
-            });
-        </script>
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        });
+        document.getElementById("navbarDropdown").textContent = user_id
+
+        var timer = document.getElementById("navdropdown1")
+        var hr = 0;
+        var min = 0;
+        var sec = 0;
+
+        function timerCycle() {
+            var stoptime = false;
+            if (stoptime == false) {
+                sec = parseInt(sec);
+                min = parseInt(min);
+                hr = parseInt(hr);
+
+                sec = sec + 1
+
+                if (sec == 60) {
+                    min = min + 1;
+                    sec = 0;
+                }
+                if (min == 60) {
+                    hr = hr + 1;
+                    min = 0;
+                    sec = 0;
+                }
+
+                if (sec < 10 || sec == 0) {
+                    sec = '0' + sec;
+                }
+                if (min < 10 || min == 0) {
+                    min = '0' + min;
+                }
+                if (hr < 10 || hr == 0) {
+                    hr = '0' + hr;
+                }
+
+                timer.innerHTML = hr + ':' + min + ':' + sec;
+            }
+        }
+        setInterval("timerCycle()", 1000);
+        socket.on('chat message', function(msg) {
+            var item = document.createElement('li');
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </div>
 </body>
 
