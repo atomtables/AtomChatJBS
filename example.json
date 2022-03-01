@@ -1,75 +1,66 @@
 {
-    "data": {
-      "bug_bug": [
-        {
-            "title": "Dark Mode Message Delay",
-            "url": "https://thenewremote.herokuapp.com/d"
-          }
-      ],
-      "on_the_horizon": [
-        {
-          "title": "PSQL Login Database",
-          "url": "https://node-postgres.com/"
+  "data": {
+    "needs_work": [
+      {
+          "title": "PR to fix issue",
+          "url": "https://github.com/linuxmint/cinnamon-spices-applets/pull/3692"
         }
-      ],
-      "on_the_horizon": [
-        {
-          "title": "PHP-capable login",
-          "url": "https://www.w3schools.com/php/default.asp"
-        }
-      ]
-      "todo": [
-        {
-          "title": "Make a looking-good logo",
-          "url": "https://www.freelogodesign.org/"
-        }
-      ]
-      "todo": [
-        {
-          "title": "Switch from bootstrap to something better",
-          "url": "https://bulma.io/documentation/components/navbar/"
-        }
-      ]
-      "feature_not_bug": [
-        {
-          "title": "Get a better git repo",
-          "url": "https://github.com"
-        }
-      ]
-      "future": [
-        {
-          "title": "Get an official electron-based client",
-          "url": "https://www.electronjs.org/"
-        }
-      ]
-    },
-    "metadata": {
-      "display": {
-        "bug_bug": {
-          "priority": 10,
-          "symbol": "♿️",
-          "title": "♿️ Big Bug:"
-        },
-        "on_the_horizon": {
-          "priority": 8,
-          "symbol": "🏁️",
-          "title": "🏁️ Next Release:"
-        },
-        "todo": {
-          "priority": 5,
-          "symbol": "🕐",
-          "title": "🕐 To be done:"
-        },
-        "feature_not_bug": {
-          "priority": 2,
-          "symbol": "🍉️",
-          "title": "🍉️ Feature not bug:"
-        },
-        "future": {
-          "priority": 1,
-          "symbol": "📱️",
-          "title": "📱️ In the future:"
-        },
+    ],
+    "waiting_for_review": [
+      {
+        "title": "PR to review",
+        "url": "https://github.com/linuxmint/cinnamon-spices-applets/pull/3692"
+      }
+    ],
+    "prod_crash": [
+      {
+        "title": "Fix this crash",
+        "url": "https://google.com"
+      }
+    ]
+  },
+  "metadata": {
+    "display": {
+      "needs_work": {
+        "priority": 10,
+        "symbol": "👎",
+        "title": "👎 Needs work"
+      },
+      "other_problems": {
+        "priority": 10,
+        "symbol": "😟",
+        "title": "😟 Other problems"
+      },
+      "waiting_for_review": {
+        "priority": 10,
+        "symbol": "🕐",
+        "title": "🕐 Waiting for review"
+      },
+      "devtest": {
+        "priority": 10,
+        "symbol": "🧪",
+        "title": "🧪 Can be tested by developers"
+      },
+      "ready_to_merge": {
+        "priority": 10,
+        "symbol": "🎉",
+        "title": "🎉 Ready to merge"
+      },
+      "workflow_problem": {
+        "priority": 10,
+        "symbol": "🤨",
+        "title": "🤨 Workflow problem: should be 4EYE or ready for test"
+      },
+      "wip": {
+        "priority": 11,
+        "symbol": "🚧",
+        "title": "🚧 Work in progress"
+      },
+      "prod_crash": {
+        "priority": 0,
+        "symbol": "💥",
+        "title": "💥 Prod crash"
       }
     }
   }
+}
