@@ -1,0 +1,75 @@
+{
+    "data": {
+      "bug_bug": [
+        {
+            "title": "Dark Mode Message Delay",
+            "url": "https://thenewremote.herokuapp.com/d"
+          }
+      ],
+      "on_the_horizon": [
+        {
+          "title": "PSQL Login Database",
+          "url": "https://node-postgres.com/"
+        }
+      ],
+      "on_the_horizon": [
+        {
+          "title": "PHP-capable login",
+          "url": "https://www.w3schools.com/php/default.asp"
+        }
+      ]
+      "todo": [
+        {
+          "title": "Make a looking-good logo",
+          "url": "https://www.freelogodesign.org/"
+        }
+      ]
+      "todo": [
+        {
+          "title": "Switch from bootstrap to something better",
+          "url": "https://bulma.io/documentation/components/navbar/"
+        }
+      ]
+      "feature_not_bug": [
+        {
+          "title": "Get a better git repo",
+          "url": "https://github.com"
+        }
+      ]
+      "future": [
+        {
+          "title": "Get an official electron-based client",
+          "url": "https://www.electronjs.org/"
+        }
+      ]
+    },
+    "metadata": {
+      "display": {
+        "bug_bug": {
+          "priority": 10,
+          "symbol": "♿️",
+          "title": "♿️ Big Bug:"
+        },
+        "on_the_horizon": {
+          "priority": 8,
+          "symbol": "🏁️",
+          "title": "🏁️ Next Release:"
+        },
+        "todo": {
+          "priority": 5,
+          "symbol": "🕐",
+          "title": "🕐 To be done:"
+        },
+        "feature_not_bug": {
+          "priority": 2,
+          "symbol": "🍉️",
+          "title": "🍉️ Feature not bug:"
+        },
+        "future": {
+          "priority": 1,
+          "symbol": "📱️",
+          "title": "📱️ In the future:"
+        },
+      }
+    }
+  }
