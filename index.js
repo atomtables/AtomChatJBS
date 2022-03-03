@@ -3,13 +3,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 const fs = require('fs')
-const { Pool } = require('pg');
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+
 
 
 const d = new Date();
@@ -24,30 +18,18 @@ fs.writeFile(d.toString("MM_DD_YYYY__HH__MM") + "log-messages.txt", "log-init\n"
     //file written successfully
 });
 
-app.get('/db', async(req, res) => {
-    try {
-        const client = await pool.connect();
-        const result = await client.query('SELECT * FROM test_table');
-        const results = { 'results': (result) ? result.rows : null };
-        res.render('pages/json', results);
-        client.release();
-    } catch (err) {
-        console.error(err);
-        res.send("Error: " + err);
-    }
-})
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/public/index.html');
 });
 
-
+/*
 app.get('/d', (req, res) => {
     res.sendFile(__dirname + '/darkmode.html');
-});
+});*/
 
 app.get('/worker.js', (req, res) => {
-    res.sendFile(__dirname + "/worker.js")
+    res.sendFile(__dirname + "/public/worker.js")
 })
 
 
