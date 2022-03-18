@@ -1,5 +1,5 @@
 {
-    "name": "elecpy_chat",
+    "name": "elec_chat",
     "version": "1.0.0",
     "description": "electron chat app",
     "main": "index.js",
