@@ -1,21 +1,23 @@
 <!DOCTYPE html>
+<!--btw for the uninitiated, this website was made by atomtables, the dev name for adithv08-->
 <html id="bodyHtml">
 
 <head>
     <title>Elec Chat!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--file style formatting-->
     <style>
         body {
-            background:#000;
-            color:#fff;
-            height:100%;
+            background: #000;
+            color: #fff;
+            height: 100%;
             margin: 0;
             /*padding-bottom: ;*/
-            padding-bottom:3rem;
+            padding-bottom: 3rem;
             background-clip: content-box;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        
+
         #form {
             background: rgba(0, 0, 0, 0.15);
             padding: 0.25rem;
@@ -28,7 +30,7 @@
             box-sizing: border-box;
             backdrop-filter: blur(10px);
         }
-        
+
         #input {
             border: none;
             padding: 0 1rem;
@@ -36,11 +38,11 @@
             border-radius: 2rem;
             margin: 0.25rem;
         }
-        
+
         #input:focus {
             outline: none;
         }
-        
+
         #form>button {
             background: #333;
             border: none;
@@ -50,55 +52,61 @@
             outline: none;
             color: #fff;
         }
-        
+
         #messages {
             list-style-type: none;
             margin: 0;
             padding: 0;
         }
+
         .formDark {
             list-style-type: none;
             margin: 0;
             padding: 0;
             background: #3b3b3b;
-            color:white;
+            color: white;
         }
-        
+
         #messages>li {
             padding: 0.5rem 1rem;
         }
-        
+
         .formLight>li:nth-child(odd) {
             background: #efefef;
         }
+
         .formDark>li:nth-child(odd) {
             background: #3b3b3b;
             color: white;
         }
-        
+
         .formDark>li:nth-child(even) {
             background: black;
             color: white;
         }
+
         .color-dark {
             color: #fff;
         }
     </style>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 </head>
 
 <body id="bodyHtml">
     <nav id="navBar" class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">Elec Chat</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a id="darkmodebutton" class="nav-link" href="javascript:darkModeToggle()">Dark Mode <span class="sr-only">(current)</span></a>
+                    <a id="darkmodebutton" class="nav-link" href="javascript:darkModeToggle()">Dark Mode <span
+                            class="sr-only">(current)</span></a>
                 </li>
                 <div class="mode-layer nav-item active"></div>
 
@@ -106,9 +114,10 @@
                     <a class="nav-link" href="#">Link</a>
                 </li>-->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Username
-          </a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Username
+                    </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" id="navdropdown1" href="#">Time spent</a>
                         <a class="dropdown-item disabled" href="#">Log Out</a>
@@ -121,17 +130,21 @@
         </div>
     </nav>
     <ul id="messages" class="formLight">
-        <li>Chats are logged.</li>
-        <li>Be aware what you say to others</li>
     </ul>
     <form id="form" action="">
-        <input id="input" autocomplete="off" /><button>Send</button>
+        <input id="input" autocomplete="on" /><button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
         var socket = io();
-
+        // username basic functionality
+        function setCookie(cname, cvalue, exdays) {
+            const d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
         function getCookie(cname) {
             let name = cname + "=";
             let decodedCookie = decodeURIComponent(document.cookie);
@@ -150,7 +163,7 @@
         if (getCookie("user_id") == "") {
             var x = prompt("Hello! We see you are a new user. What would you like your username to be? \n\nPlease do not use duplicate usernames, sessions are logged.")
 
-            document.cookie = "user_id=" + x;
+            setCookie("user_id", x, 9999)
             const user_id = getCookie("user_id");
         }
 
@@ -160,7 +173,7 @@
         var user_id = getCookie("user_id");
         document.getElementById("navbarDropdown").innerHTML = user_id
         console.log(input.value)
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             console.log(input.value)
             e.preventDefault();
             if (input.value) {
@@ -177,7 +190,7 @@
         var min = 0;
         var sec = 0;
         var dark = false
-        
+
         function timerCycle() {
             var stoptime = false;
             if (stoptime == false) {
@@ -211,7 +224,7 @@
             }
         }
         setInterval("timerCycle()", 1000);
-        socket.on('chat message', function(msg) {
+        socket.on('chat message', function (msg) {
             var item = document.createElement('li');
             item.textContent = msg[0];
             messages.appendChild(item);
@@ -235,7 +248,7 @@
             });
         }
         function darkModeToggle() {
-            
+
             if (dark == false) {
                 document.getElementById("bodyHtml").className = "bg-dark";
                 document.getElementById("navBar").className = "navbar navbar-expand-lg navbar-dark bg-dark";
@@ -252,13 +265,19 @@
                 dark = false;
             }
 
-            
+
 
         }
     </script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 
 </body>
 
