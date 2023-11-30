@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--btw for the uninitiated, this website was made by atomtables, the dev name for adithv08-->
-<html id="bodyHtml">
-
+<!--suppress HtmlUnknownTarget, HtmlFormInputWithoutLabel -->
+<html lang="en">
 <head>
     <title>Elec Chat!</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <!--file style formatting-->
     <style>
         body {
@@ -15,7 +15,8 @@
             /*padding-bottom: ;*/
             padding-bottom: 3rem;
             background-clip: content-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, Roboto,
+            Helvetica, Arial, sans-serif;
         }
 
         #form {
@@ -32,6 +33,7 @@
         }
 
         #input {
+            color: white;
             border: none;
             padding: 0 1rem;
             flex-grow: 1;
@@ -43,7 +45,7 @@
             outline: none;
         }
 
-        #form>button {
+        #form > button {
             background: #333;
             border: none;
             padding: 0 1rem;
@@ -59,226 +61,340 @@
             padding: 0;
         }
 
-        .formDark {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            background: #3b3b3b;
-            color: white;
-        }
-
-        #messages>li {
+        #messages > li {
             padding: 0.5rem 1rem;
         }
 
-        .formLight>li:nth-child(odd) {
+        .formLight > li:nth-child(odd) {
             background: #efefef;
         }
 
-        .formDark>li:nth-child(odd) {
+        .formDark > li:nth-child(odd) {
             background: #3b3b3b;
             color: white;
         }
 
-        .formDark>li:nth-child(even) {
+        .formDark > li:nth-child(even) {
             background: black;
             color: white;
         }
-
-        .color-dark {
-            color: #fff;
-        }
     </style>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
+    <link
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+            integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+            crossorigin="anonymous"
+    />
 </head>
 
-<body id="bodyHtml">
-    <nav id="navBar" class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Elec Chat</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<body id="bodyHtml" onunload="beforeUnloadHandler()">
+<nav id="navBar" class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">AtomChat</a>
+    <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+    >
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a id="darkmodebutton" class="nav-link" href="javascript:darkModeToggle()">Dark Mode <span
-                            class="sr-only">(current)</span></a>
-                </li>
-                <div class="mode-layer nav-item active"></div>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+                <a
+                        class="nav-link dropdown-toggle"
+                        href="#"
+                        id="navbarDropdown"
+                        role="button"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                >
+                    Username
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" id="navdropdown1" href="#">Time spent</a>
+                    <a class="dropdown-item" href="#" onclick="logOut()">Log Out</a>
+                </div>
+            </li>
+            <li class="nav-item">
+            </li>
+            <li class="nav-item dropdown">
+                <a
+                        class="nav-link dropdown-toggle"
+                        href="#"
+                        id="navbarDropdown2"
+                        role="button"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                >
+                    Username
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="user-list-dropdown">
+                    <a class="dropdown-item disabled" id="navdropdown2" href="#">No users online...</a>
+                </div>
+            </li>
+            <li class="nav-item">
+            </li>
+        </ul>
+    </div>
 
-                <!--<li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>-->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Username
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" id="navdropdown1" href="#">Time spent</a>
-                        <a class="dropdown-item disabled" href="#">Log Out</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <!-- <a class="nav-link disabled" href="#">i will ban your ass if you are not supposed to be here.</a>-->
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <ul id="messages" class="formLight">
-    </ul>
-    <form id="form" action="">
-        <input id="input" autocomplete="on" /><button>Send</button>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
+</nav>
+<ul id="messages" class="formLight"></ul>
+<form id="form" action="">
+    <input id="input" autocomplete="on" placeholder="100"/>
+    <button>Send</button>
+</form>
+<script src="/socket.io/socket.io.js"></script>
 
-    <script>
-        var socket = io();
-        // username basic functionality
-        function setCookie(cname, cvalue, exdays) {
+<script>
+    var socket = io();
+    var user_id;
+    var online_users = [];
+
+    // username basic functionality
+    function setCookie(cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+        let expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(";");
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === " ") {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
+    if (getCookie("user_id") === "") {
+        var x = prompt(
+            "Hello! We see you are a new user. What would you like your username to be? \n\nPlease do not use duplicate usernames, sessions are logged."
+        );
+
+        setCookie("user_id", x, 9999);
+        user_id = getCookie("user_id");
+    }
+
+    function logOut() {
+        var x = confirm("Are you sure you want to log out?");
+        if (x) { setCookie("user_id", "", 0); location.reload(); }
+    }
+
+    function updateUserList() {
+        document.querySelector("#user-list-dropdown").innerHTML = "";
+        if (online_users.length > 0) {
+            online_users.forEach((user) => {
+                document.querySelector("#user-list-dropdown").innerHTML += `<a class="dropdown-item disabled" href="#">${user}</a>`
+            })
+        } else {
+            document.querySelector("#user-list-dropdown").innerHTML += `<a class="dropdown-item disabled" href="#">No users online...</a>`
+        }
+    }
+
+    var messages = document.getElementById("messages");
+    user_id = getCookie("user_id");
+    socket.emit("joined", user_id);
+    var form = document.getElementById("form");
+    var input = document.getElementById("input");
+    document.getElementById("navbarDropdown").innerHTML = user_id;
+    console.log(input.value);
+    form.addEventListener("submit", function (e) {
+        console.log(input.value);
+        e.preventDefault();
+        if (input.value) {
             const d = new Date();
-            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-            let expires = "expires=" + d.toUTCString();
-            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            d.setTime(d.getTime());
+            socket.emit("chat message", [
+                d.toLocaleTimeString("en-AU"),
+                user_id,
+                input.value,
+            ]);
+            input.value = "";
         }
-        function getCookie(cname) {
-            let name = cname + "=";
-            let decodedCookie = decodeURIComponent(document.cookie);
-            let ca = decodedCookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                }
+    });
+    socket.emit("getUsers", user_id)
+    socket.on("getUsers", (arg) => {
+        console.log(arg)
+        online_users = arg;
+        document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+        updateUserList();
+    })
+    socket.on("joined", (arg) => {
+        online_users.push(arg);
+        document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+        updateUserList();
+    })
+    socket.on("left", (arg) => {
+        try {
+            online_users.splice(online_users.indexOf(arg), 1)
+        } catch {
+            console.log("error: user not found")
+        }
+        document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+        updateUserList();
+    })
+    socket.on("online_check", () => {
+        socket.emit("online_response", user_id);
+    })
+    socket.on("is_still_online", (arg) => {
+        if (arg === false) {
+            location.reload();
+        }
+    })
+    setInterval(() => {
+        socket.emit("is_still_online", user_id)
+    }, 1000)
+    setInterval(() => {
+        checkSocketConnection()
+    }, 1000);
+    document.getElementById("navbarDropdown").textContent = user_id;
+
+    var timer = document.getElementById("navdropdown1");
+    var hr = 0;
+    var min = 0;
+    var sec = 0;
+    var dark = false;
+
+    function stringToDarkColor(str) {
+        // Seed the random number generator with the hash code of the string
+        let seed = 0;
+        for (let i = 0; i < str.length; i++) {
+            seed = (seed << 5) - seed + str.charCodeAt(i);
+        }
+
+        // Generate random RGB values for a dark color
+        const random = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+        const getRandomColorComponent = () => Math.floor(random() * 128);
+
+        const red = getRandomColorComponent();
+        const green = getRandomColorComponent();
+        const blue = getRandomColorComponent();
+
+        // Convert RGB values to hexadecimal and return the color string
+        return `#${red.toString(16).padStart(2, "0")}${green
+            .toString(16)
+            .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
+    }
+
+    function timerCycle() {
+        var stoptime = false;
+        if (stoptime === false) {
+            sec = parseInt(sec);
+            min = parseInt(min);
+            hr = parseInt(hr);
+
+            sec = sec + 1;
+
+            if (sec === 60) {
+                min = min + 1;
+                sec = 0;
             }
-            return "";
-        }
-        if (getCookie("user_id") == "") {
-            var x = prompt("Hello! We see you are a new user. What would you like your username to be? \n\nPlease do not use duplicate usernames, sessions are logged.")
-
-            setCookie("user_id", x, 9999)
-            const user_id = getCookie("user_id");
-        }
-
-        var messages = document.getElementById('messages');
-        var form = document.getElementById('form');
-        var input = document.getElementById('input');
-        var user_id = getCookie("user_id");
-        document.getElementById("navbarDropdown").innerHTML = user_id
-        console.log(input.value)
-        form.addEventListener('submit', function (e) {
-            console.log(input.value)
-            e.preventDefault();
-            if (input.value) {
-                const d = new Date();
-                d.setTime(d.getTime())
-                socket.emit('chat message', [d.toLocaleString("en-US") + ": " + user_id + " says: " + input.value, user_id, input.value]);
-                input.value = '';
+            if (min === 60) {
+                hr = hr + 1;
+                min = 0;
+                sec = 0;
             }
-        });
-        document.getElementById("navbarDropdown").textContent = user_id
 
-        var timer = document.getElementById("navdropdown1")
-        var hr = 0;
-        var min = 0;
-        var sec = 0;
-        var dark = false
-
-        function timerCycle() {
-            var stoptime = false;
-            if (stoptime == false) {
-                sec = parseInt(sec);
-                min = parseInt(min);
-                hr = parseInt(hr);
-
-                sec = sec + 1
-
-                if (sec == 60) {
-                    min = min + 1;
-                    sec = 0;
-                }
-                if (min == 60) {
-                    hr = hr + 1;
-                    min = 0;
-                    sec = 0;
-                }
-
-                if (sec < 10 || sec == 0) {
-                    sec = '0' + sec;
-                }
-                if (min < 10 || min == 0) {
-                    min = '0' + min;
-                }
-                if (hr < 10 || hr == 0) {
-                    hr = '0' + hr;
-                }
-
-                timer.innerHTML = hr + ':' + min + ':' + sec;
+            if (sec < 10 || sec === 0) {
+                sec = "0" + sec;
             }
+            if (min < 10 || min === 0) {
+                min = "0" + min;
+            }
+            if (hr < 10 || hr === 0) {
+                hr = "0" + hr;
+            }
+
+            timer.innerHTML = hr + ":" + min + ":" + sec;
         }
-        setInterval("timerCycle()", 1000);
-        socket.on('chat message', function (msg) {
-            var item = document.createElement('li');
-            item.textContent = msg[0];
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
-            if (document.hidden) {
-                navigator.serviceWorker.register('/worker.js').then((worker) => {
-                    worker.showNotification(msg[1] + " says:", {
-                        body: msg[2]
-                    });
+    }
+
+    setInterval("timerCycle()", 1000);
+    socket.on("chat message", function (msg) {
+        var item = document.createElement("li");
+        item.style.backgroundColor = stringToDarkColor(msg[1]);
+        item.textContent = `${msg[0]}, ${msg[1]} says ${msg[2]}`;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+        if (document.hidden) {
+            navigator.serviceWorker.register("/worker.js").then((worker) => {
+                worker.showNotification(msg[1] + " says:", {
+                    body: msg[2],
                 });
-            }
-
-        });
-        if (window.Notification) {
-            Notification.requestPermission(() => {
-                if (Notification.permission === 'granted') {
-                    console.log("notifications working")
-                } else {
-                    console.log("notifications blocked. houston we got a problem")
-                }
             });
         }
-        function darkModeToggle() {
-
-            if (dark == false) {
-                document.getElementById("bodyHtml").className = "bg-dark";
-                document.getElementById("navBar").className = "navbar navbar-expand-lg navbar-dark bg-dark";
-                document.getElementById("messages").className = "formDark";
-                document.getElementById("input").className = "bg-dark color-dark"
-                document.getElementById("darkmodebutton").innerHTML = "Light Mode"
-                dark = true;
-            } else if (dark == true) {
-                document.getElementById("bodyHtml").className = "";
-                document.getElementById("navBar").className = "navbar navbar-expand-lg navbar-light bg-light";
-                document.getElementById("messages").className = "formLight";
-                document.getElementById("input").className = "";
-                document.getElementById("darkmodebutton").innerHTML = "Dark Mode";
-                dark = false;
+    });
+    if (window.Notification) {
+        Notification.requestPermission(() => {
+            if (Notification.permission === "granted") {
+                console.log("notifications working");
+            } else {
+                console.log("notifications blocked. houston we got a problem");
             }
+        });
+    }
 
-
-
+    function darkModeToggle() {
+        if (dark === false) {
+            document.getElementById("bodyHtml").className = "bg-dark";
+            document.getElementById("navBar").className =
+                "navbar navbar-expand-lg navbar-dark bg-dark";
+            document.getElementById("messages").className = "formDark";
+            document.getElementById("input").className = "bg-dark color-dark";
+            document.getElementById("darkmodebutton").innerHTML = "Light Mode";
+            dark = true;
+        } else if (dark === true) {
+            document.getElementById("bodyHtml").className = "";
+            document.getElementById("navBar").className =
+                "navbar navbar-expand-lg navbar-light bg-light";
+            document.getElementById("messages").className = "formLight";
+            document.getElementById("input").className = "";
+            document.getElementById("darkmodebutton").innerHTML = "Dark Mode";
+            dark = false;
         }
-    </script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    }
+
+    darkModeToggle();
+
+    function checkSocketConnection() {
+        if (socket.disconnected) {
+            location.reload();
+        }
+    }
+    function beforeUnloadHandler() {
+        socket.emit('left', user_id);
+        console.log('Browser is about to close!');
+    }
+</script>
+<script
+        src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        crossorigin="anonymous"
+></script>
+<script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
-
+        crossorigin="anonymous"
+></script>
 </body>
-
 </html>

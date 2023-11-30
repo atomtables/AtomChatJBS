@@ -1,7 +1,7 @@
 {
-    "name": "elec_chat",
+    "name": "atomchatjbs",
     "version": "1.0.0",
-    "description": "electron chat app",
+    "description": "Small and Efficient Chat Application",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,14 +9,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/adithv08/elecpy_chat.git"
+        "url": "git+https://github.com/atomtables/AtomChatJBS.git"
     },
-    "author": "adithv08",
+    "author": "atomtables",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/adithv08/elecpy_chat/issues"
+        "url": "https://github.com/atomtables/AtomChatJBS/issues"
     },
-    "homepage": "https://github.com/adithv08/elecpy_chat#readme",
+    "homepage": "https://github.com/atomtables/AtomChatJBS/#readme",
     "dependencies": {
         "body-parser": "^1.19.1",
         "dark-mode-light-mode": "^1.3.3",
