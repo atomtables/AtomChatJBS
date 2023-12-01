@@ -89,7 +89,7 @@
 
 <body id="bodyHtml" onunload="beforeUnloadHandler()">
 <nav id="navBar" class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">AtomChat</a>
+    <a class="navbar-brand" href="#">AtomChatJBS</a>
     <button
             class="navbar-toggler"
             type="button"
@@ -147,7 +147,7 @@
 </nav>
 <ul id="messages" class="formLight"></ul>
 <form id="form" action="">
-    <input id="input" autocomplete="on" placeholder="100"/>
+    <input id="input" autocomplete="on" placeholder="100" onload="document.querySelector('input').setAttribute('autocomplete','none');"/>
     <button>Send</button>
 </form>
 <script src="/socket.io/socket.io.js"></script>
@@ -220,7 +220,7 @@
             const d = new Date();
             d.setTime(d.getTime());
             socket.emit("chat message", [
-                d.toLocaleTimeString("en-AU"),
+                `${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes()}`,
                 user_id,
                 input.value,
             ]);
@@ -258,7 +258,7 @@
     })
     setInterval(() => {
         socket.emit("is_still_online", user_id)
-    }, 1000)
+    }, 15000)
     setInterval(() => {
         checkSocketConnection()
     }, 1000);
@@ -328,7 +328,7 @@
     socket.on("chat message", function (msg) {
         var item = document.createElement("li");
         item.style.backgroundColor = stringToDarkColor(msg[1]);
-        item.textContent = `${msg[0]}, ${msg[1]} says ${msg[2]}`;
+        item.textContent = `${msg[0]}, ${msg[1]}: ${msg[2]}`;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
         if (document.hidden) {

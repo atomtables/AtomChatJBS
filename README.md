@@ -11,6 +11,7 @@ AtomChatJBS was mainly made to be self-hosted on a computer and for everyone to 
 - [x] User went online/offline detection
 - [X] User list on the client side
 - [X] Automatic reload when user/client is no longer active
+- [x] Notifications
 - [ ] typing indicators (next commit)
 - [ ] access code to access chatroom server
 - [ ] user account system for protection
