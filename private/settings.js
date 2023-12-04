@@ -15,4 +15,6 @@ config.port = 3000
 
 config.server_name = "AtomChat Server"
 
+config.access_code = "QWERTY"
+
 module.exports = config
