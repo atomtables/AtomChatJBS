@@ -78,19 +78,28 @@ io.on('connection', (socket) => {
     })
     // sends list of joined users to client
     socket.on("getUsers", (username) => {
-        var f = JSON.parse(JSON.stringify(users));
-        f.splice(f.indexOf(username), 1)
-        socket.emit("getUsers", f)
+        if (users.indexOf(username) === -1) socket.emit("is_still_online", false)
+        else {
+            var f = JSON.parse(JSON.stringify(users));
+            f.splice(f.indexOf(username), 1)
+            socket.emit("getUsers", f)
+        }
     })
     // sends message to client
     socket.on('chat message', msg => {
-        io.emit("chat message", msg)
-        console.log(msg[0], msg[1], msg[2])
+        if (users.indexOf(msg[1]) === -1) socket.emit("is_still_online", false)
+        else {
+            io.emit("chat message", msg)
+            console.log(msg[0], msg[1], msg[2])
+        }
     });
-
+    // sends typing notification to client
     socket.on("typing", username => {
-        console.log("user typing: " + username)
-        socket.broadcast.emit("typing", username)
+        if (users.indexOf(username) === -1) socket.emit("is_still_online", false)
+        else {
+            console.log("user typing: " + username)
+            socket.broadcast.emit("typing", username)
+        }
     });
 });
 // http server init
