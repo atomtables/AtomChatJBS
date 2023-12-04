@@ -59,24 +59,11 @@
             list-style-type: none;
             margin: 56px 0 0;
             padding: 0;
+            color: white;
         }
 
         #messages > li {
             padding: 0.5rem 1rem;
-        }
-
-        .formLight > li:nth-child(odd) {
-            background: #efefef;
-        }
-
-        .formDark > li:nth-child(odd) {
-            background: #3b3b3b;
-            color: white;
-        }
-
-        .formDark > li:nth-child(even) {
-            background: black;
-            color: white;
         }
     </style>
     <link
@@ -87,7 +74,7 @@
     />
 </head>
 
-<body id="bodyHtml" onunload="beforeUnloadHandler()" class="bg-dark">
+<body id="bodyHtml" onunload="beforeUnloadHandler(); checkForNotificationsAllowed()" class="bg-dark">
 
 <nav id="navBar" class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark"
      style="background-color: rgba(52,58,64,0.8)!important">
@@ -137,6 +124,11 @@
                     <a class="dropdown-item disabled" id="navdropdown2">No users online...</a>
                 </div>
             </li>
+            <li class="nav-item nav-justified">
+                <button class="btn btn-primary" id="enable-notifications" onclick="allowNotifications()">Enable
+                    Notifications
+                </button>
+            </li>
         </ul>
     </div>
 
@@ -157,6 +149,8 @@
 
 <!--suppress JSUnresolvedReference -->
 <script>
+    navigator.serviceWorker.register("worker.js");
+
     var socket = io();
     var user_id;
     var inputted;
@@ -189,6 +183,7 @@
     }
 
     let typingAllowed = true
+
     function typingIndicator() {
         if (typingAllowed) {
             socket.emit("typing", user_id);
@@ -302,6 +297,27 @@
         }
     }, 1000);
 
+    function allowNotifications() {
+        Notification.requestPermission().then((result) => {
+            if (result === "granted") {
+                navigator.serviceWorker.ready.then((registration) => {
+                    registration.showNotification("Hello World!");
+                });
+                document.querySelector("#enable-notifications").style.display = "none"
+            } else {
+                console.log("notifications blocked. houston we got a problem");
+            }
+        });
+    }
+
+    function checkForNotificationsAllowed() {
+        if (Notification.permission === "granted") {
+            document.querySelector("#enable-notifications").style.display = "none"
+        }
+    }
+
+    checkForNotificationsAllowed();
+
     // display chat message when the message is sent
     socket.on("chat message", function (msg) {
         var item = document.createElement("li");
@@ -310,9 +326,9 @@
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
         if (document.hidden) {
-            navigator.serviceWorker.register("/worker.js").then((worker) => {
-                worker.showNotification(msg[1] + " says:", {
-                    body: msg[2],
+            navigator.serviceWorker.ready.then((registration) => {
+                registration.showNotification(`${msg[1]} says:`, {
+                    body: `${msg[2]}`,
                 });
             });
         }
@@ -329,6 +345,10 @@
         online_users.push(arg);
         document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
         updateUserList();
+        var item = document.createElement("li");
+        item.style.backgroundColor = stringToDarkColor(arg);
+        item.innerHTML = `<i>${arg} joined chat</i>`;
+        messages.appendChild(item);
     })
     // remove a user from the list on the homepage
     socket.on("left", (arg) => {
@@ -339,6 +359,10 @@
         }
         document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
         updateUserList();
+        var item = document.createElement("li");
+        item.style.backgroundColor = stringToDarkColor(arg);
+        item.innerHTML = `<i>${arg} left chat</i>`;
+        messages.appendChild(item);
     })
     // respond to the server with an online request
     socket.on("online_check", () => {

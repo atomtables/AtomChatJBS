@@ -5,7 +5,7 @@ const config = require("./private/settings.js")
 const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const port = config.port;
+const port = config.port || 3000;
 
 let users = []
 let notOnline = []
@@ -59,12 +59,14 @@ io.on('connection', (socket) => {
             console.log("error: user not found")
         }
         io.emit("joined", username)
+        console.log(users)
     })
     // removes client from list of joined users
     socket.on("left", username => {
         console.log("user left: " + username)
         users.splice(users.indexOf(username), 1)
         io.emit("left", username)
+        console.log(users)
     })
     // recieves the response from the check before
     socket.on("online_response", username => {
@@ -78,7 +80,7 @@ io.on('connection', (socket) => {
     socket.on("getUsers", (username) => {
         var f = JSON.parse(JSON.stringify(users));
         f.splice(f.indexOf(username), 1)
-        io.emit("getUsers", f)
+        socket.emit("getUsers", f)
     })
     // sends message to client
     socket.on('chat message', msg => {
