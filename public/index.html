@@ -264,7 +264,7 @@
 
     setInterval(() => {
         socket.emit("is_still_online", user_id)
-    }, 15000) // make sure server has not kicked us for inactivity
+    }, 45000) // make sure server has not kicked us for inactivity
     setInterval(() => {
         checkSocketConnection()
     }, 1000); // make sure client is not disconnected
