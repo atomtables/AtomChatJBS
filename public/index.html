@@ -74,7 +74,7 @@
     />
 </head>
 
-<body id="bodyHtml" onunload="beforeUnloadHandler(); checkForNotificationsAllowed()" class="bg-dark">
+<body id="bodyHtml" onunload="beforeUnloadHandler()" class="bg-dark">
 
 <nav id="navBar" class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark"
      style="background-color: rgba(52,58,64,0.8)!important">
@@ -146,73 +146,58 @@
     <button>Send</button>
 </form>
 <script src="/socket.io/socket.io.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"
+        integrity="sha256-/H4YS+7aYb9kJ5OKhFYPUjSJdrtV6AeyJOtTkw6X72o=" crossorigin="anonymous"></script>
+<script src="cookie.js"></script>
 <!--suppress JSUnresolvedReference -->
 <script>
-    navigator.serviceWorker.register("worker.js");
+    navigator.serviceWorker.register("/worker.js");
 
-    var socket = io();
-    var user_id;
-    var inputted;
-    var online_users = [];
-    var typing_users = [];
-    var typing_users_id = [];
-
-    // username basic functionality
-    function setCookie(cname, cvalue, exdays) {
-        const d = new Date();
-        d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
-        let expires = "expires=" + d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    }
-
-    function getCookie(cname) {
-        let name = cname + "=";
-        let decodedCookie = decodeURIComponent(document.cookie);
-        let ca = decodedCookie.split(";");
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === " ") {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) === 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
-
+    let socket = io();
+    let user_id;
+    let accessCode;
+    let accessCodeCorrect;
+    let inputted;
+    let sec = 0;
+    let min = 0;
+    let hr = 0;
+    let online_users = [];
+    let typing_users = [];
+    let typing_users_id = [];
+    let messages = document.getElementById("messages");
+    let form = document.getElementById("form");
+    let input = document.getElementById("input");
+    let timer = document.getElementById("navdropdown1");
     let typingAllowed = true
+    let typingTimer = false;
+
 
     function typingIndicator() {
         if (typingAllowed) {
             socket.emit("typing", user_id);
             console.log("typing");
             typingAllowed = false
-            setTimeout(() => {
+            typingTimer = setTimeout(() => {
                 typingAllowed = true
             }, 5000)
         }
     }
 
-    // set the username as a cookie and use it throughout the code
-    if (getCookie("user_id") === "") {
-        var x = prompt(
-            "Hello! We see you are a new user. What would you like your username to be? \n\nPlease do not use duplicate usernames, sessions are logged."
-        );
+    function accessCodeCheck() {
+        accessCode = prompt("please enter the access code to continue")
+        socket.emit("accessCodeCheck", CryptoJS.AES.encrypt(accessCode, accessCode).toString())
+    }
 
-        setCookie("user_id", x, 9999);
-        user_id = getCookie("user_id");
-        socket.emit("joined", user_id);
-        inputted = true;
-    }
-    user_id = getCookie("user_id"); // get the username from the cookie
-    // make sure we don't send a null username to the server
-    if (user_id !== "" && user_id != null && inputted !== true) {
-        socket.emit("joined", user_id);
-    }
-    // set the username in the navbar
-    document.getElementById("navbarDropdown").textContent = user_id;
+    socket.on("accessCodeCheck", (arg) => {
+        if (arg) {
+            enableFeatures();
+        } else {
+            alert("Check failed. Please try again.")
+            accessCodeCheck();
+        }
+    })
+
+    accessCodeCheck();
 
     // delete the cookie so the user can change their username
     function logOut() {
@@ -235,67 +220,82 @@
         }
     }
 
-    var messages = document.getElementById("messages");
-    var form = document.getElementById("form");
-    var input = document.getElementById("input");
-    var timer = document.getElementById("navdropdown1");
+    function enableFeatures() {
+        // set the username as a cookie and use it throughout the code
+        if (getCookie("user_id") === "") {
+            var x = prompt(
+                "Hello! We see you are a new user. What would you like your username to be? \n\nPlease do not use duplicate usernames, sessions are logged."
+            );
 
-    // send messages to server when submitted in the chatbox
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        if (input.value) {
-            const d = new Date();
-            d.setTime(d.getTime());
-            socket.emit("chat message", [
-                `${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes()}`,
-                user_id,
-                input.value,
-            ]);
-            input.value = "";
+            setCookie("user_id", x, 9999);
+            user_id = getCookie("user_id");
+            socket.emit("joined", user_id);
+            inputted = true;
         }
-    });
-
-    socket.emit("getUsers", user_id) // get users that are already online
-
-    setInterval(() => {
-        socket.emit("is_still_online", user_id)
-    }, 45000) // make sure server has not kicked us for inactivity
-    setInterval(() => {
-        checkSocketConnection()
-    }, 1000); // make sure client is not disconnected
-
-
-    var hr = 0;
-    var min = 0;
-    var sec = 0;
-    setInterval(() => {
-        var stoptime = false;
-        if (stoptime === false) {
-            sec = parseInt(sec);
-            min = parseInt(min);
-            hr = parseInt(hr);
-            sec = sec + 1;
-            if (sec === 60) {
-                min = min + 1;
-                sec = 0;
-            }
-            if (min === 60) {
-                hr = hr + 1;
-                min = 0;
-                sec = 0;
-            }
-            if (sec < 10 || sec === 0) {
-                sec = "0" + sec;
-            }
-            if (min < 10 || min === 0) {
-                min = "0" + min;
-            }
-            if (hr < 10 || hr === 0) {
-                hr = "0" + hr;
-            }
-            timer.innerHTML = hr + ":" + min + ":" + sec;
+        user_id = getCookie("user_id"); // get the username from the cookie
+        // make sure we don't send a null username to the server
+        if (user_id !== "" && user_id != null && inputted !== true) {
+            socket.emit("joined", user_id);
         }
-    }, 1000);
+        // set the username in the navbar
+        document.getElementById("navbarDropdown").textContent = user_id;
+
+        // send messages to server when submitted in the chatbox
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (input.value) {
+                clearTimeout(typingTimer)
+                typingAllowed = true;
+                const d = new Date();
+                d.setTime(d.getTime());
+                socket.emit("chat message", [
+                    `${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes()}`,
+                    user_id,
+                    input.value,
+                ]);
+                input.value = "";
+            }
+        });
+
+        socket.emit("getUsers", user_id) // get users that are already online
+
+        setInterval(() => socket.emit("is_still_online", user_id), 45000) // make sure server has not kicked us for inactivity
+        setInterval(() => checkSocketConnection(), 1000); // make sure client is not disconnected
+        setInterval(() => {
+            var stoptime = false;
+            if (stoptime === false) {
+                sec = parseInt(sec);
+                min = parseInt(min);
+                hr = parseInt(hr);
+                sec = sec + 1;
+                if (sec === 60) {
+                    min = min + 1;
+                    sec = 0;
+                }
+                if (min === 60) {
+                    hr = hr + 1;
+                    min = 0;
+                    sec = 0;
+                }
+                if (sec < 10 || sec === 0) {
+                    sec = "0" + sec;
+                }
+                if (min < 10 || min === 0) {
+                    min = "0" + min;
+                }
+                if (hr < 10 || hr === 0) {
+                    hr = "0" + hr;
+                }
+                timer.innerHTML = hr + ":" + min + ":" + sec;
+            }
+        }, 1000);
+
+        defineSocketEvents();
+
+        if (Notification.permission === "granted") {
+            document.querySelector("#enable-notifications").style.display = "none"
+        }
+    }
 
     function allowNotifications() {
         Notification.requestPermission().then((result) => {
@@ -310,88 +310,87 @@
         });
     }
 
-    function checkForNotificationsAllowed() {
-        if (Notification.permission === "granted") {
-            document.querySelector("#enable-notifications").style.display = "none"
-        }
+    function defineSocketEvents() {
+        // display chat message when the message is sent
+        socket.on("chat message", (data) => {
+            var item = document.createElement("li");
+            item.style.backgroundColor = stringToDarkColor(data[1]);
+            item.textContent = `${data[0]}, ${data[1]}: ${data[2]}`;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+            try {
+                typing_users.splice(typing_users.indexOf(data[1]), 1)
+                typing_users_id.splice(typing_users.indexOf(data[1]), 1)
+                updateTypingList()
+            } catch {}
+            if (document.hidden) {
+                navigator.serviceWorker.ready.then((registration) => {
+                    registration.showNotification(`${data[1]} says:`, {
+                        body: `${data[2]}`,
+                    });
+                });
+            }
+        });
+        // display the list of users on the homepage
+        socket.on("getUsers", (arg) => {
+            // console.log(arg)
+            online_users = arg;
+            document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+            updateUserList();
+        })
+        // add a user to the list on the homepage
+        socket.on("joined", (arg) => {
+            online_users.push(arg);
+            document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+            updateUserList();
+            var item = document.createElement("li");
+            item.style.backgroundColor = stringToDarkColor(arg);
+            item.innerHTML = `<i>${arg} joined chat</i>`;
+            messages.appendChild(item);
+        })
+        // remove a user from the list on the homepage
+        socket.on("left", (arg) => {
+            try {
+                online_users.splice(online_users.indexOf(arg), 1)
+            } catch {
+                console.log("error: user not found")
+            }
+            document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+            updateUserList();
+            var item = document.createElement("li");
+            item.style.backgroundColor = stringToDarkColor(arg);
+            item.innerHTML = `<i>${arg} left chat</i>`;
+            messages.appendChild(item);
+        })
+        // respond to the server with an online request
+        socket.on("online_check", () => {
+            socket.emit("online_response", user_id);
+        })
+        // if the server has kicked us for failing the request, reload the page
+        socket.on("is_still_online", (arg) => {
+            if (arg === false) {
+                location.reload();
+            }
+        })
+        // update the typing indicator
+        socket.on("typing", (arg) => {
+            if (typing_users.indexOf(arg) !== -1) {
+                clearTimeout(typing_users_id[typing_users.indexOf(arg)])
+                typing_users.splice(typing_users.indexOf(arg), 1)
+                typing_users_id.splice(typing_users.indexOf(arg), 1)
+            }
+            typing_users.push(arg)
+            let x = setTimeout(() => {
+                typing_users.splice(typing_users.indexOf(arg), 1)
+                typing_users_id.splice(typing_users.indexOf(arg), 1)
+                updateTypingList()
+            }, 6000)
+            typing_users_id.push(x)
+            updateTypingList()
+        })
     }
 
-    checkForNotificationsAllowed();
-
-    // display chat message when the message is sent
-    socket.on("chat message", function (msg) {
-        var item = document.createElement("li");
-        item.style.backgroundColor = stringToDarkColor(msg[1]);
-        item.textContent = `${msg[0]}, ${msg[1]}: ${msg[2]}`;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-        if (document.hidden) {
-            navigator.serviceWorker.ready.then((registration) => {
-                registration.showNotification(`${msg[1]} says:`, {
-                    body: `${msg[2]}`,
-                });
-            });
-        }
-    });
-    // display the list of users on the homepage
-    socket.on("getUsers", (arg) => {
-        console.log(arg)
-        online_users = arg;
-        document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
-        updateUserList();
-    })
-    // add a user to the list on the homepage
-    socket.on("joined", (arg) => {
-        online_users.push(arg);
-        document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
-        updateUserList();
-        var item = document.createElement("li");
-        item.style.backgroundColor = stringToDarkColor(arg);
-        item.innerHTML = `<i>${arg} joined chat</i>`;
-        messages.appendChild(item);
-    })
-    // remove a user from the list on the homepage
-    socket.on("left", (arg) => {
-        try {
-            online_users.splice(online_users.indexOf(arg), 1)
-        } catch {
-            console.log("error: user not found")
-        }
-        document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
-        updateUserList();
-        var item = document.createElement("li");
-        item.style.backgroundColor = stringToDarkColor(arg);
-        item.innerHTML = `<i>${arg} left chat</i>`;
-        messages.appendChild(item);
-    })
-    // respond to the server with an online request
-    socket.on("online_check", () => {
-        socket.emit("online_response", user_id);
-    })
-    // if the server has kicked us for failing the request, reload the page
-    socket.on("is_still_online", (arg) => {
-        if (arg === false) {
-            location.reload();
-        }
-    })
-    // update the typing indicator
-    socket.on("typing", (arg) => {
-        if (typing_users.indexOf(arg) !== -1) {
-            clearTimeout(typing_users_id[typing_users.indexOf(arg)])
-            typing_users.splice(typing_users.indexOf(arg), 1)
-            typing_users_id.splice(typing_users.indexOf(arg), 1)
-        }
-        typing_users.push(arg)
-        let x = setTimeout(() => {
-            typing_users.splice(typing_users.indexOf(arg), 1)
-            typing_users_id.splice(typing_users.indexOf(arg), 1)
-            updateTyping()
-        }, 6000)
-        typing_users_id.push(x)
-        updateTyping()
-    })
-
-    function updateTyping() {
+    function updateTypingList() {
         if (typing_users.length === 1) {
             document.querySelector("#input").placeholder = typing_users[0] + " is typing..."
         } else if (typing_users.length === 0) {
@@ -403,38 +402,32 @@
         }
     }
 
-    // request notification access (doesn't have a service worker so only works on chrome/firefox)
-    if (window.Notification) {
-        Notification.requestPermission(() => {
-            if (Notification.permission === "granted") {
-                console.log("notifications working");
-            } else {
-                console.log("notifications blocked. houston we got a problem");
-            }
-        });
-    }
-
     // used for the backgrounds for username and stuff
     function stringToDarkColor(str) {
-        // Seed the random number generator with the hash code of the string
-        let seed = 0;
-        for (let i = 0; i < str.length; i++) {
-            seed = (seed << 5) - seed + str.charCodeAt(i);
-        }
-
-        // Generate random RGB values for a dark color
-        const random = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-        const getRandomColorComponent = () => Math.floor(random() * 128);
-
-        const red = getRandomColorComponent();
-        const green = getRandomColorComponent();
-        const blue = getRandomColorComponent();
-
-        // Convert RGB values to hexadecimal and return the color string
-        return `#${red.toString(16).padStart(2, "0")}${green
-            .toString(16)
-            .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
+    // Seed the random number generator with the hash code of the string
+    let seed = 0 >>> 0; // Use unsigned right shift to ensure a positive 32-bit integer
+    for (let i = 0; i < str.length; i++) {
+        seed = (seed << 5) - seed + str.charCodeAt(i);
+        seed = seed >>> 0; // Use unsigned right shift to ensure a positive 32-bit integer
     }
+
+    // Generate random RGB values for a dark color
+    const random = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    const getRandomColorComponent = () => Math.floor(random() * 128);
+
+    const red = getRandomColorComponent();
+    const green = getRandomColorComponent();
+    const blue = getRandomColorComponent();
+
+    console.log(`#${red.toString(16).padStart(2, "0")}${green
+        .toString(16)
+        .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`)
+
+    // Convert RGB values to hexadecimal and return the color string
+    return `#${red.toString(16).padStart(2, "0")}${green
+        .toString(16)
+        .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
+}
 
     // if user is disconnected from server, reload the webpage to reconnect
     // TODO: reconnect without reloading
@@ -449,6 +442,7 @@
         socket.emit('left', user_id);
         console.log('Browser is about to close!');
     }
+
 </script>
 <script
         src="https://code.jquery.com/jquery-3.2.1.slim.min.js"

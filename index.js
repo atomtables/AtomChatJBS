@@ -1,6 +1,7 @@
 // noinspection JSValidateTypes
 
 const config = require("./private/settings.js")
+const CryptoJS = require("crypto-js")
 
 const app = require('express')();
 const http = require('http').Server(app);
@@ -14,6 +15,9 @@ let notOnline = []
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
+app.get('/cookie.js', (req, res) => {
+    res.sendFile(__dirname + '/scripts/cookie.js');
+})
 
 
 // push notification support
@@ -101,6 +105,15 @@ io.on('connection', (socket) => {
             socket.broadcast.emit("typing", username)
         }
     });
+    // encryption check key
+    socket.on("accessCodeCheck", code => {
+        console.log(code, config.access_code, CryptoJS.AES.decrypt(code, config.access_code).toString(CryptoJS.enc.Utf8))
+        if (CryptoJS.AES.decrypt(code, config.access_code).toString(CryptoJS.enc.Utf8) === config.access_code) {
+            socket.emit("accessCodeCheck", true)
+        } else {
+            socket.emit("accessCodeCheck", false)
+        }
+    })
 });
 // http server init
 http.listen(port, () => {
