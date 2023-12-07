@@ -13,8 +13,12 @@ let config = {}
 
 config.port = 3000
 
-config.server_name = "AtomChat Server"
+config.serverName = "atomdev server"
 
-config.access_code = "QWERTY"
+config.accessCodeEnabled = true
+
+config.accessCode = "QWERTY"
+
+config.rememberAccessCode = false
 
 module.exports = config

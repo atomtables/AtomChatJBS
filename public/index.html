@@ -78,7 +78,7 @@
 
 <nav id="navBar" class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark"
      style="background-color: rgba(52,58,64,0.8)!important">
-    <a class="navbar-brand" href="#">AtomChatJBS</a>
+    <a class="navbar-brand" href="#" id="server-name">AtomChatJBS</a>
     <button
             class="navbar-toggler"
             type="button"
@@ -154,16 +154,17 @@
     navigator.serviceWorker.register("/worker.js");
 
     let socket = io();
-    let user_id;
+    let username;
+    let accessCodeEnabled = false;
     let accessCode;
-    let accessCodeCorrect;
+    let rememberAccessCode = false;
     let inputted;
     let sec = 0;
     let min = 0;
     let hr = 0;
-    let online_users = [];
-    let typing_users = [];
-    let typing_users_id = [];
+    let onlineUsers = [];
+    let typingUsers = [];
+    let typingUsersId = [];
     let messages = document.getElementById("messages");
     let form = document.getElementById("form");
     let input = document.getElementById("input");
@@ -171,11 +172,23 @@
     let typingAllowed = true
     let typingTimer = false;
 
+    socket.emit("getSettings")
+
+    socket.on("getSettings", (arg) => {
+        rememberAccessCode = arg.rememberAccessCode;
+        document.querySelector("#server-name").textContent = arg.serverName;
+        if (arg.accessCodeEnabled) {
+            accessCodeEnabled = true;
+            if (getCookie("accessCode") !== "" && rememberAccessCode) {
+                accessCode = getCookie("accessCode")
+                socket.emit("accessCodeCheck", CryptoJS.AES.encrypt(accessCode, accessCode).toString())
+            } else accessCodeCheck();
+        } else enableFeatures();
+    })
 
     function typingIndicator() {
         if (typingAllowed) {
-            socket.emit("typing", user_id);
-            console.log("typing");
+            socket.emit("typing", username);
             typingAllowed = false
             typingTimer = setTimeout(() => {
                 typingAllowed = true
@@ -184,26 +197,32 @@
     }
 
     function accessCodeCheck() {
-        accessCode = prompt("please enter the access code to continue")
+        accessCode = prompt("Please enter the access code. \nIf you did not recieve such a code, please contact your server administrator.")
         socket.emit("accessCodeCheck", CryptoJS.AES.encrypt(accessCode, accessCode).toString())
     }
 
     socket.on("accessCodeCheck", (arg) => {
         if (arg) {
             enableFeatures();
-        } else {
+            if (rememberAccessCode) {
+                setCookie("accessCode", accessCode, 9999)
+            } else {
+                setCookie("accessCode", "", 0)
+            }
+        }
+        else {
             alert("Check failed. Please try again.")
             accessCodeCheck();
         }
     })
 
-    accessCodeCheck();
+    // accessCodeCheck();
 
     // delete the cookie so the user can change their username
     function logOut() {
         var x = confirm("Are you sure you want to log out?");
         if (x) {
-            setCookie("user_id", "", 0);
+            setCookie("username", "", 0);
             location.reload();
         }
     }
@@ -211,8 +230,8 @@
     // update the user list on the homepage
     function updateUserList() {
         document.querySelector("#user-list-dropdown").innerHTML = "";
-        if (online_users.length > 0) {
-            online_users.forEach((user) => {
+        if (onlineUsers.length > 0) {
+            onlineUsers.forEach((user) => {
                 document.querySelector("#user-list-dropdown").innerHTML += `<a class="dropdown-item disabled" href="#">${user}</a>`
             })
         } else {
@@ -221,6 +240,8 @@
     }
 
     function enableFeatures() {
+        defineSocketEvents();
+
         // set the username as a cookie and use it throughout the code
         if (getCookie("user_id") === "") {
             var x = prompt(
@@ -228,17 +249,17 @@
             );
 
             setCookie("user_id", x, 9999);
-            user_id = getCookie("user_id");
-            socket.emit("joined", user_id);
+            username = getCookie("user_id");
+            socket.emit("joined", username);
             inputted = true;
         }
-        user_id = getCookie("user_id"); // get the username from the cookie
+        username = getCookie("user_id"); // get the username from the cookie
         // make sure we don't send a null username to the server
-        if (user_id !== "" && user_id != null && inputted !== true) {
-            socket.emit("joined", user_id);
+        if (username !== "" && username != null && inputted !== true) {
+            socket.emit("joined", username);
         }
         // set the username in the navbar
-        document.getElementById("navbarDropdown").textContent = user_id;
+        document.getElementById("navbarDropdown").textContent = username;
 
         // send messages to server when submitted in the chatbox
         form.addEventListener("submit", (e) => {
@@ -249,17 +270,17 @@
                 const d = new Date();
                 d.setTime(d.getTime());
                 socket.emit("chat message", [
-                    `${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes()}`,
-                    user_id,
+                    `${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes()}`,
+                    username,
                     input.value,
                 ]);
                 input.value = "";
             }
         });
 
-        socket.emit("getUsers", user_id) // get users that are already online
+        socket.emit("getUsers", username) // get users that are already online
 
-        setInterval(() => socket.emit("is_still_online", user_id), 45000) // make sure server has not kicked us for inactivity
+        setInterval(() => socket.emit("is_still_online", username), 45000) // make sure server has not kicked us for inactivity
         setInterval(() => checkSocketConnection(), 1000); // make sure client is not disconnected
         setInterval(() => {
             var stoptime = false;
@@ -290,8 +311,6 @@
             }
         }, 1000);
 
-        defineSocketEvents();
-
         if (Notification.permission === "granted") {
             document.querySelector("#enable-notifications").style.display = "none"
         }
@@ -319,10 +338,11 @@
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
             try {
-                typing_users.splice(typing_users.indexOf(data[1]), 1)
-                typing_users_id.splice(typing_users.indexOf(data[1]), 1)
+                typingUsers.splice(typingUsers.indexOf(data[1]), 1)
+                typingUsersId.splice(typingUsers.indexOf(data[1]), 1)
                 updateTypingList()
-            } catch {}
+            } catch {
+            }
             if (document.hidden) {
                 navigator.serviceWorker.ready.then((registration) => {
                     registration.showNotification(`${data[1]} says:`, {
@@ -334,14 +354,14 @@
         // display the list of users on the homepage
         socket.on("getUsers", (arg) => {
             // console.log(arg)
-            online_users = arg;
-            document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+            onlineUsers = arg;
+            document.getElementById("navbarDropdown2").textContent = onlineUsers.length + " users online";
             updateUserList();
         })
         // add a user to the list on the homepage
         socket.on("joined", (arg) => {
-            online_users.push(arg);
-            document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+            onlineUsers.push(arg);
+            document.getElementById("navbarDropdown2").textContent = onlineUsers.length + " users online";
             updateUserList();
             var item = document.createElement("li");
             item.style.backgroundColor = stringToDarkColor(arg);
@@ -351,11 +371,11 @@
         // remove a user from the list on the homepage
         socket.on("left", (arg) => {
             try {
-                online_users.splice(online_users.indexOf(arg), 1)
+                onlineUsers.splice(onlineUsers.indexOf(arg), 1)
             } catch {
                 console.log("error: user not found")
             }
-            document.getElementById("navbarDropdown2").textContent = online_users.length + " users online";
+            document.getElementById("navbarDropdown2").textContent = onlineUsers.length + " users online";
             updateUserList();
             var item = document.createElement("li");
             item.style.backgroundColor = stringToDarkColor(arg);
@@ -364,7 +384,7 @@
         })
         // respond to the server with an online request
         socket.on("online_check", () => {
-            socket.emit("online_response", user_id);
+            socket.emit("online_response", username);
         })
         // if the server has kicked us for failing the request, reload the page
         socket.on("is_still_online", (arg) => {
@@ -374,60 +394,50 @@
         })
         // update the typing indicator
         socket.on("typing", (arg) => {
-            if (typing_users.indexOf(arg) !== -1) {
-                clearTimeout(typing_users_id[typing_users.indexOf(arg)])
-                typing_users.splice(typing_users.indexOf(arg), 1)
-                typing_users_id.splice(typing_users.indexOf(arg), 1)
+            if (typingUsers.indexOf(arg) !== -1) {
+                clearTimeout(typingUsersId[typingUsers.indexOf(arg)])
+                typingUsers.splice(typingUsers.indexOf(arg), 1)
+                typingUsersId.splice(typingUsers.indexOf(arg), 1)
             }
-            typing_users.push(arg)
+            typingUsers.push(arg)
             let x = setTimeout(() => {
-                typing_users.splice(typing_users.indexOf(arg), 1)
-                typing_users_id.splice(typing_users.indexOf(arg), 1)
+                typingUsers.splice(typingUsers.indexOf(arg), 1)
+                typingUsersId.splice(typingUsers.indexOf(arg), 1)
                 updateTypingList()
             }, 6000)
-            typing_users_id.push(x)
+            typingUsersId.push(x)
             updateTypingList()
         })
     }
 
     function updateTypingList() {
-        if (typing_users.length === 1) {
-            document.querySelector("#input").placeholder = typing_users[0] + " is typing..."
-        } else if (typing_users.length === 0) {
+        if (typingUsers.length === 1) {
+            document.querySelector("#input").placeholder = typingUsers[0] + " is typing..."
+        } else if (typingUsers.length === 0) {
             document.querySelector("#input").placeholder = "Send a message..."
-        } else if (typing_users.length === 2) {
-            document.querySelector("#input").placeholder = `${typing_users[0]} and ${typing_users[1]} are typing...`
+        } else if (typingUsers.length === 2) {
+            document.querySelector("#input").placeholder = `${typingUsers[0]} and ${typingUsers[1]} are typing...`
         } else {
-            document.querySelector("#input").placeholder = `${typing_users[0]}, ${typing_users[1]} and ${typing_users.length} others are typing...`
+            document.querySelector("#input").placeholder = `${typingUsers[0]}, ${typingUsers[1]} and ${typingUsers.length} others are typing...`
         }
     }
 
     // used for the backgrounds for username and stuff
     function stringToDarkColor(str) {
-    // Seed the random number generator with the hash code of the string
-    let seed = 0 >>> 0; // Use unsigned right shift to ensure a positive 32-bit integer
-    for (let i = 0; i < str.length; i++) {
-        seed = (seed << 5) - seed + str.charCodeAt(i);
-        seed = seed >>> 0; // Use unsigned right shift to ensure a positive 32-bit integer
+        let seed = 0 >>> 0;
+        for (let i = 0; i < str.length; i++) {
+            seed = (seed << 5) - seed + str.charCodeAt(i);
+            seed = seed >>> 0;
+        }
+        const random = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+        const getRandomColorComponent = () => Math.floor(random() * 128);
+        const red = getRandomColorComponent();
+        const green = getRandomColorComponent();
+        const blue = getRandomColorComponent();
+        return `#${red.toString(16).padStart(2, "0")}${green
+            .toString(16)
+            .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
     }
-
-    // Generate random RGB values for a dark color
-    const random = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-    const getRandomColorComponent = () => Math.floor(random() * 128);
-
-    const red = getRandomColorComponent();
-    const green = getRandomColorComponent();
-    const blue = getRandomColorComponent();
-
-    console.log(`#${red.toString(16).padStart(2, "0")}${green
-        .toString(16)
-        .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`)
-
-    // Convert RGB values to hexadecimal and return the color string
-    return `#${red.toString(16).padStart(2, "0")}${green
-        .toString(16)
-        .padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
-}
 
     // if user is disconnected from server, reload the webpage to reconnect
     // TODO: reconnect without reloading
@@ -439,8 +449,7 @@
 
     // tell server that user is leaving
     function beforeUnloadHandler() {
-        socket.emit('left', user_id);
-        console.log('Browser is about to close!');
+        socket.emit('left', username);
     }
 
 </script>

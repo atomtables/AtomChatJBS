@@ -33,9 +33,10 @@ setInterval(() => {
         notOnline.forEach(user => {
             try {
                 console.log("user went offline: " + user)
+                io.emit("left", user)
                 users.splice(users.indexOf(user), 1)
             } catch {
-                console.log("error: user not found")
+                // console.log("error: user not found")
             }
         })
     }, 12500)
@@ -107,12 +108,20 @@ io.on('connection', (socket) => {
     });
     // encryption check key
     socket.on("accessCodeCheck", code => {
-        console.log(code, config.access_code, CryptoJS.AES.decrypt(code, config.access_code).toString(CryptoJS.enc.Utf8))
-        if (CryptoJS.AES.decrypt(code, config.access_code).toString(CryptoJS.enc.Utf8) === config.access_code) {
+        console.log(code, config.accessCode, CryptoJS.AES.decrypt(code, config.accessCode).toString(CryptoJS.enc.Utf8))
+        if (CryptoJS.AES.decrypt(code, config.accessCode).toString(CryptoJS.enc.Utf8) === config.accessCode) {
             socket.emit("accessCodeCheck", true)
         } else {
             socket.emit("accessCodeCheck", false)
         }
+    })
+    // send client settings from server
+    socket.on("getSettings", () => {
+        socket.emit("getSettings", {
+            serverName: config.serverName,
+            accessCodeEnabled: config.accessCodeEnabled,
+            rememberAccessCode: config.rememberAccessCode
+        })
     })
 });
 // http server init
