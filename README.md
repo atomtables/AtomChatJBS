@@ -13,6 +13,13 @@ AtomChatJBS was mainly made to be self-hosted on a computer and for everyone to 
 - [X] Automatic reload when user/client is no longer active
 - [x] Notifications
 - [x] typing indicators
-- [ ] access code to access chatroom server
+- [X] access code to access chatroom server
 - [ ] user account system for protection
-- [ ] encryption for sent and received messages
+- [X] encryption for sent and received messages 
+  - Encryption is done client side, using a key that the
+  server has. The server can decrypt the message, making 
+  it possible to read the message.
+  - To combat this, E2E encryption, where the key is
+  shared between all users without knowledge of
+  the server, will also be implemented side-by-side to
+  this in the future.
