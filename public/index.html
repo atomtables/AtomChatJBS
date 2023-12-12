@@ -172,6 +172,14 @@
     let typingAllowed = true
     let typingTimer = false;
 
+    function encrypt(arg) {
+        return CryptoJS.AES.encrypt(arg, accessCode).toString()
+    }
+
+    function decrypt(arg) {
+        return CryptoJS.AES.decrypt(arg, accessCode).toString(CryptoJS.enc.Utf8)
+    }
+
     socket.emit("getSettings")
 
     socket.on("getSettings", (arg) => {
@@ -209,8 +217,7 @@
             } else {
                 setCookie("accessCode", "", 0)
             }
-        }
-        else {
+        } else {
             alert("Check failed. Please try again.")
             accessCodeCheck();
         }
@@ -270,9 +277,9 @@
                 const d = new Date();
                 d.setTime(d.getTime());
                 socket.emit("chat message", [
-                    `${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes()}`,
-                    username,
-                    input.value,
+                    CryptoJS.AES.encrypt(`${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes()}`, accessCode).toString(),
+                    CryptoJS.AES.encrypt(username, accessCode).toString(),
+                    CryptoJS.AES.encrypt(input.value, accessCode).toString()
                 ]);
                 input.value = "";
             }
@@ -332,21 +339,33 @@
     function defineSocketEvents() {
         // display chat message when the message is sent
         socket.on("chat message", (data) => {
-            var item = document.createElement("li");
-            item.style.backgroundColor = stringToDarkColor(data[1]);
-            item.textContent = `${data[0]}, ${data[1]}: ${data[2]}`;
+            let item = document.createElement("li");
+            let userId;
+            let message;
+            let time;
+            if (!accessCodeEnabled) {
+                userId = data[1];
+                message = data[2];
+                time = data[0];
+            } else {
+                userId = data[1];
+                message = CryptoJS.AES.decrypt(data[0], accessCode).toString(CryptoJS.enc.Utf8);
+                time = data[0];
+            }
+            item.style.backgroundColor = stringToDarkColor(userId);
+            item.textContent = `${message}, ${userId}: ${time}`;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
             try {
-                typingUsers.splice(typingUsers.indexOf(data[1]), 1)
-                typingUsersId.splice(typingUsers.indexOf(data[1]), 1)
+                typingUsers.splice(typingUsers.indexOf(userId), 1)
+                typingUsersId.splice(typingUsers.indexOf(userId), 1)
                 updateTypingList()
             } catch {
             }
             if (document.hidden) {
                 navigator.serviceWorker.ready.then((registration) => {
-                    registration.showNotification(`${data[1]} says:`, {
-                        body: `${data[2]}`,
+                    registration.showNotification(`${userId} says:`, {
+                        body: `${message}`,
                     });
                 });
             }
@@ -360,6 +379,9 @@
         })
         // add a user to the list on the homepage
         socket.on("joined", (arg) => {
+            if (onlineUsers.indexOf(arg) !== -1) {
+                onlineUsers.splice(onlineUsers.indexOf(arg), 1)
+            }
             onlineUsers.push(arg);
             document.getElementById("navbarDropdown2").textContent = onlineUsers.length + " users online";
             updateUserList();

@@ -18,6 +18,9 @@ app.get('/', (req, res) => {
 app.get('/cookie.js', (req, res) => {
     res.sendFile(__dirname + '/scripts/cookie.js');
 })
+app.get('/lolzers', (req, res) => {
+    res.send("export PS1=\"\\[\\e[32;40m\\]\\u\\[\\e[m\\]@\\[\\e[34m\\]\\h\\[\\e[m\\][\\[\\e[36m\\]\\w\\[\\e[m\\]]\\[\\e[33m\\]\\\\$\\[\\e[m\\] \"")
+})
 
 
 // push notification support
@@ -85,7 +88,7 @@ io.on('connection', (socket) => {
     socket.on("getUsers", (username) => {
         if (users.indexOf(username) === -1) socket.emit("is_still_online", false)
         else {
-            var f = JSON.parse(JSON.stringify(users));
+            let f = JSON.parse(JSON.stringify(users));
             f.splice(f.indexOf(username), 1)
             socket.emit("getUsers", f)
         }
@@ -108,7 +111,7 @@ io.on('connection', (socket) => {
     });
     // encryption check key
     socket.on("accessCodeCheck", code => {
-        console.log(code, config.accessCode, CryptoJS.AES.decrypt(code, config.accessCode).toString(CryptoJS.enc.Utf8))
+        // console.log(code, config.accessCode, CryptoJS.AES.decrypt(code, config.accessCode).toString(CryptoJS.enc.Utf8))
         if (CryptoJS.AES.decrypt(code, config.accessCode).toString(CryptoJS.enc.Utf8) === config.accessCode) {
             socket.emit("accessCodeCheck", true)
         } else {
