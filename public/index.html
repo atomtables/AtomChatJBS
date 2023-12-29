@@ -172,22 +172,20 @@
     let typingAllowed = true
     let typingTimer = false;
 
-    function encrypt(arg) {
-        return CryptoJS.AES.encrypt(arg, accessCode).toString()
-    }
-
-    function decrypt(arg) {
-        return CryptoJS.AES.decrypt(arg, accessCode).toString(CryptoJS.enc.Utf8)
-    }
-
     socket.emit("getSettings")
 
     socket.on("getSettings", (arg) => {
-        rememberAccessCode = arg.rememberAccessCode;
+        // rememberAccessCode = arg.rememberAccessCode;
         document.querySelector("#server-name").textContent = arg.serverName;
-        if (arg.accessCodeEnabled) {
+        if (arg.encryptionMethod === "ss") {
             accessCodeEnabled = true;
-            if (getCookie("accessCode") !== "" && rememberAccessCode) {
+            if (getCookie("accessCode") !== "" /*&& rememberAccessCode*/) {
+                accessCode = getCookie("accessCode")
+                socket.emit("accessCodeCheck", CryptoJS.AES.encrypt(accessCode, accessCode).toString())
+            } else accessCodeCheck();
+        } else if (arg.encryptionMethod === "e2e") {
+            accessCodeEnabled = true;
+            if (getCookie("e2eCode") !== "" /*&& rememberAccessCode*/) {
                 accessCode = getCookie("accessCode")
                 socket.emit("accessCodeCheck", CryptoJS.AES.encrypt(accessCode, accessCode).toString())
             } else accessCodeCheck();
@@ -196,6 +194,7 @@
 
     function typingIndicator() {
         if (typingAllowed) {
+            console.log("typing")
             socket.emit("typing", username);
             typingAllowed = false
             typingTimer = setTimeout(() => {
@@ -207,6 +206,12 @@
     function accessCodeCheck() {
         accessCode = prompt("Please enter the access code. \nIf you did not recieve such a code, please contact your server administrator.")
         socket.emit("accessCodeCheck", CryptoJS.AES.encrypt(accessCode, accessCode).toString())
+    }
+
+    function e2eCode() {
+        accessCode = prompt("Please enter the access code. If you enter the wrong code, you will not be able to read any messages.")
+        setCookie("e2eCode", accessCode, 9999)
+        enableFeatures()
     }
 
     socket.on("accessCodeCheck", (arg) => {
@@ -277,8 +282,8 @@
                 const d = new Date();
                 d.setTime(d.getTime());
                 socket.emit("chat message", [
-                    CryptoJS.AES.encrypt(`${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes()}`, accessCode).toString(),
-                    CryptoJS.AES.encrypt(username, accessCode).toString(),
+                    `${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes()}`,
+                    username,
                     CryptoJS.AES.encrypt(input.value, accessCode).toString()
                 ]);
                 input.value = "";
@@ -340,17 +345,13 @@
         // display chat message when the message is sent
         socket.on("chat message", (data) => {
             let item = document.createElement("li");
-            let userId;
+            let userId = data[1];
             let message;
-            let time;
+            let time = data[0];
             if (!accessCodeEnabled) {
-                userId = data[1];
                 message = data[2];
-                time = data[0];
             } else {
-                userId = data[1];
                 message = CryptoJS.AES.decrypt(data[0], accessCode).toString(CryptoJS.enc.Utf8);
-                time = data[0];
             }
             item.style.backgroundColor = stringToDarkColor(userId);
             item.textContent = `${message}, ${userId}: ${time}`;

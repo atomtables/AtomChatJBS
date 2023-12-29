@@ -18,9 +18,6 @@ app.get('/', (req, res) => {
 app.get('/cookie.js', (req, res) => {
     res.sendFile(__dirname + '/scripts/cookie.js');
 })
-app.get('/lolzers', (req, res) => {
-    res.send("export PS1=\"\\[\\e[32;40m\\]\\u\\[\\e[m\\]@\\[\\e[34m\\]\\h\\[\\e[m\\][\\[\\e[36m\\]\\w\\[\\e[m\\]]\\[\\e[33m\\]\\\\$\\[\\e[m\\] \"")
-})
 
 
 // push notification support
@@ -122,8 +119,7 @@ io.on('connection', (socket) => {
     socket.on("getSettings", () => {
         socket.emit("getSettings", {
             serverName: config.serverName,
-            accessCodeEnabled: config.accessCodeEnabled,
-            rememberAccessCode: config.rememberAccessCode
+            encryptionMethod: config.encryptionMethod,
         })
     })
 });
