@@ -185,10 +185,7 @@
             } else accessCodeCheck();
         } else if (arg.encryptionMethod === "e2e") {
             accessCodeEnabled = true;
-            if (getCookie("e2eCode") !== "" /*&& rememberAccessCode*/) {
-                accessCode = getCookie("accessCode")
-                socket.emit("accessCodeCheck", CryptoJS.AES.encrypt(accessCode, accessCode).toString())
-            } else accessCodeCheck();
+            e2eCode();
         } else enableFeatures();
     })
 
@@ -284,7 +281,7 @@
                 socket.emit("chat message", [
                     `${d.getHours() < 13 ? d.getHours() : d.getHours() - 12}:${d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes()}`,
                     username,
-                    CryptoJS.AES.encrypt(input.value, accessCode).toString()
+                    accessCodeEnabled ? CryptoJS.AES.encrypt(input.value, accessCode).toString() : input.value
                 ]);
                 input.value = "";
             }
@@ -345,16 +342,20 @@
         // display chat message when the message is sent
         socket.on("chat message", (data) => {
             let item = document.createElement("li");
-            let userId = data[1];
+            let userId;
             let message;
-            let time = data[0];
+            let time;
             if (!accessCodeEnabled) {
+                userId = data[1];
                 message = data[2];
+                time = data[0];
             } else {
-                message = CryptoJS.AES.decrypt(data[0], accessCode).toString(CryptoJS.enc.Utf8);
+                userId = data[1];
+                message = CryptoJS.AES.decrypt(data[2], accessCode).toString(CryptoJS.enc.Utf8);
+                time = data[0];
             }
             item.style.backgroundColor = stringToDarkColor(userId);
-            item.textContent = `${message}, ${userId}: ${time}`;
+            item.textContent = `${time}, ${userId}: ${message}`;
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
             try {
