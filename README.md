@@ -4,7 +4,7 @@ A lightweight chatting application designed to be portable, instantly deployable
 
 Though AtomChat is in the name of this app, this app is separate from AtomChat. AtomChat is a unified server with indivdual client apps that connects with atom-stack, whereas AtomChatJBS runs on Javascript, is the Bare Minimum, and is a Server and Client combination.
 
-AtomChatJBS was mainly made to be self-hosted on a computer and for everyone to connect to that IP (for example, server and one of the users is on 10.12.34.5). However, it can be hosted on any platform, such as Glitch, Heroku, or Github Pages. 
+AtomChatJBS was mainly made to be self-hosted on a computer and for everyone to connect to that IP (for example, server and one of the users is on 10.12.34.5). However, it can be hosted on any platform, such as Glitch, Heroku, or ~~Github Pages~~ (no static hosting). 
 
 ### Features so far:
 - [X] Messaging
